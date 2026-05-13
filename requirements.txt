@@ -1,0 +1,22 @@
+telethon>=1.34.0
+pandas>=2.0.0
+python-dotenv>=1.0.0
+nltk>=3.8.0
+scikit-learn>=1.3.0
+scipy>=1.10.0
+openai>=1.40.0
+matplotlib>=3.7.0
+seaborn>=0.13.0
+emoji>=2.14.0
+lingua-language-detector>=2.0.0
+# Estonian morphological POS (Vabamorf). Pip on Windows may need MSVC; conda:
+#   conda install -c estnltk -c conda-forge estnltk=1.7.4
+estnltk==1.7.4
+
+# BERT fine-tuning (``python -m modeling.bert_train``). transformers>=4.41 fixes
+# checkpoint reload LayerNorm weight name mismatches when ``load_best_model_at_end=True``.
+torch>=2.0.0
+transformers>=4.41.0
+datasets>=2.16.0
+accelerate>=0.26.0
+adjustText>=1.3.0

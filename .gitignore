@@ -1,0 +1,27 @@
+# Environment
+.env
+*.session
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so
+
+# Checkpoints and data
+checkpoints/
+data/
+figures/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+
+#venv
+.venv/
