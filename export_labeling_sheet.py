@@ -2,7 +2,7 @@
 Export sampled rows to a CSV that matches the manual labeling Google Sheet layout.
 
 Columns (same order as your sheet):
-  sample nr | Text | Username | Channel | Propa | Sildistaja | Tüüp | Muu tüüp
+  sample nr | Text | Username | Channel | Propa | Sildistaja
 
 Username uses 'username' (@handle from Telegram) when present, else 'post_author'
 (channel signature), else other legacy sender columns if any.
@@ -22,7 +22,7 @@ Refresh (replace rows that fail filters; labeled rows kept by default):
 
 Google Sheets:
   1. File > Import > Upload > select the CSV > "Insert new sheet" or replace a tab.
-  2. OR: keep your template with dropdowns on Propa/Tüüp — import CSV into a NEW tab,
+  2. OR: keep your template with dropdowns on Propa — import CSV into a NEW tab,
      then copy columns A–D (sample nr, Text, Username, Channel) from that tab into
      your template tab (paste values only), so dropdown columns stay intact.
   3. UTF-8: use utf-8-sig encoding (default here) so Estonian characters open correctly.
@@ -55,12 +55,10 @@ LABEL_COLUMNS = [
     "Channel",
     "Propa",
     "Sildistaja",
-    "Tüüp",
-    "Muu tüüp",
 ]
 
 # Columns that indicate the annotator filled something in (preserve on refresh).
-LABEL_ANNOTATION_COLS = ["Propa", "Sildistaja", "Tüüp", "Muu tüüp"]
+LABEL_ANNOTATION_COLS = ["Propa", "Sildistaja"]
 
 META_COLUMNS = ("telegram_id", "post_date")
 
@@ -153,8 +151,6 @@ def build_labeling_frame(df: pd.DataFrame) -> pd.DataFrame:
             ),
             "Propa": [""] * n,
             "Sildistaja": [""] * n,
-            "Tüüp": [""] * n,
-            "Muu tüüp": [""] * n,
         }
     )
     # Ensure column order

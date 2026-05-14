@@ -52,7 +52,7 @@ def load_labeling_csv_for_pipeline(path: Path | str) -> pd.DataFrame:
     if "post_date" in raw.columns:
         out["date"] = raw["post_date"]
 
-    for c in ("sample nr", "Propa", "Sildistaja", "Tüüp", "Muu tüüp"):
+    for c in ("sample nr", "Propa", "Sildistaja"):
         if c in raw.columns:
             out[c] = raw[c]
 

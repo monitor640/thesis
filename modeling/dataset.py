@@ -18,7 +18,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 
@@ -26,7 +25,6 @@ def validate_modeling_table(
     df: pd.DataFrame,
     *,
     need_text: bool = False,
-    need_tyyp: bool = False,
 ) -> None:
     """
     Columns produced by :func:`build_modeling_table` (official ``export-table`` path).
@@ -37,8 +35,6 @@ def validate_modeling_table(
     required = ["channel", "telegram_id", "y_propa"]
     if need_text:
         required.append("text")
-    if need_tyyp:
-        required.append("y_tyyp")
     missing = [c for c in required if c not in df.columns]
     if missing:
         raise ValueError(
@@ -76,14 +72,6 @@ def add_normalized_channel(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def _tyyp_column(df: pd.DataFrame) -> str | None:
-    for c in df.columns:
-        cl = c.replace("ü", "u").lower()
-        if cl == "tuup" or c == "Tüüp":
-            return c
-    return None
-
-
 def load_labeling_pair(
     uku_path: Path | str,
     simon_path: Path | str,
@@ -106,18 +94,8 @@ def load_labeling_pair(
     for df in (uku, simon):
         df["_tid"] = pd.to_numeric(df["telegram_id"], errors="coerce").astype("Int64")
 
-    ty_u = _tyyp_column(uku)
-    ty_s = _tyyp_column(simon)
-    if ty_u:
-        uku = uku.rename(columns={ty_u: "tyyp_uku"})
-    if ty_s:
-        simon = simon.rename(columns={ty_s: "tyyp_simon"})
-
-    simon_cols = ["channel", "_tid", "propa_simon"] + (
-        ["tyyp_simon"] if "tyyp_simon" in simon.columns else []
-    )
     merged = uku.merge(
-        simon[simon_cols],
+        simon[["channel", "_tid", "propa_simon"]],
         on=["channel", "_tid"],
         how="inner",
         suffixes=("", "_s"),
@@ -213,11 +191,5 @@ def build_modeling_table(
 
     df["y_propa"] = df["propa_consensus"]
     df = df.drop(columns=["propa_uku", "propa_simon"], errors="ignore")
-
-    if "tyyp_uku" in df.columns:
-        df["y_tyyp"] = df["tyyp_uku"].fillna("").astype(str).str.strip()
-        df.loc[df["y_tyyp"] == "", "y_tyyp"] = np.nan
-    else:
-        df["y_tyyp"] = np.nan
 
     return df

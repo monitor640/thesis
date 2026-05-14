@@ -32,10 +32,7 @@ async def resolve_sender_username(
         (username, post_author) — username without leading @; may be empty for
         anonymous channel posts. post_author is the channel “signed by” name when set.
     """
-    post_author = getattr(message, "post_author", None) or ""
-    if post_author is None:
-        post_author = ""
-    post_author = str(post_author).strip()
+    post_author = str(getattr(message, "post_author", None) or "").strip()
 
     username = ""
     try:

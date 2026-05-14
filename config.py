@@ -172,8 +172,7 @@ LABELING_EXPORT_CSV = DATA_DIR / "labeling_export.csv"
 
 FIGURES_DIR = BASE_DIR / "figures"
 
-# Sklearn benchmark: CV folds + fixed holdout predictions table (after each sklearn run).
-SKLEARN_CV_FOLDS = 5
+# Sklearn benchmark: fixed holdout predictions table (after each sklearn run).
 HOLDOUT_SKLEARN_PREDS_CSV = DATA_DIR / "holdout_sklearn_predictions.csv"
 HOLDOUT_BERT_PREDS_CSV = DATA_DIR / "holdout_bert_predictions.csv"
 HOLDOUT_LLM_PREDS_CSV = DATA_DIR / "holdout_llm_predictions.csv"
@@ -213,12 +212,11 @@ BERT_SEARCH_BATCH_SIZES = [4, 8, 12]
 
 # Optional: ``export BERT_FORCE_CPU=1`` before ``python -m modeling.bert_train`` to force CPU.
 
-# LLM JSONL checkpoints + benchmark metrics JSON (sklearn, LLM, tyyp, reliability)
+# LLM JSONL checkpoints + benchmark metrics JSON (sklearn, LLM, reliability)
 LLM_CHECKPOINT_DIR = CHECKPOINTS_DIR / "modeling"
 METRICS_DIR = LLM_CHECKPOINT_DIR
 METRICS_SKLEARN_JSON = METRICS_DIR / "metrics_sklearn.json"
 METRICS_REPEATED_SPLITS_JSON = METRICS_DIR / "metrics_repeated_splits.json"
-METRICS_TYYP_JSON = METRICS_DIR / "metrics_tyyp.json"
 METRICS_RELIABILITY_JSON = METRICS_DIR / "metrics_reliability.json"
 
 

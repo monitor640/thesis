@@ -102,7 +102,6 @@ def plot_holdout_ridgelines(
     *,
     width: int = 920,
     row_height_px: int = 72,
-    show: bool = True,
 ) -> None:
     """Ridgeline densities via [ridgeplot](https://ridgeplot.readthedocs.io/) (Plotly)."""
     long_df = holdout_scores_long()
@@ -144,9 +143,6 @@ def plot_holdout_ridgelines(
         out_path = Path(out_path)
         out_path.parent.mkdir(parents=True, exist_ok=True)
         fig.write_image(str(out_path), scale=2)
-
-    #if show:
-     #   fig.show()
 
 
 def plot_holdout_pred_vs_true_facets(
@@ -297,13 +293,6 @@ def plot_propaganda_label_bars(
     if show:
         plt.show()
     plt.close(fig)
-
-
-import matplotlib.pyplot as plt
-import numpy as np
-from pathlib import Path
-import json
-from matplotlib.patches import Patch
 
 
 def plot_feature_importance_scatter(

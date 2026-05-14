@@ -19,10 +19,8 @@ Inter-rater reliability + a small, thesis-friendly model stack (see ``config.py`
 3. **BERT** — One fine-tuned sequence model (default ``BERT_MODEL_ID`` in config, e.g. XLM-R);
    evaluated on the same 100-row holdout after training on the train pool.
 
-4. **Tüüp** — Optional auxiliary task (TF–IDF + RF on propaganda type); not part of the 0–4 stack.
-
 Pipeline order: export-table → reliability → sklearn → ``llm`` ×2 (``no_features``, ``with_features``)
-→ tyyp → bert. LLM needs ``OPENAI_API_KEY``; optional ``OPENAI_MODEL`` / ``LLM_MODEL``.
+→ bert. LLM needs ``OPENAI_API_KEY``; optional ``OPENAI_MODEL`` / ``LLM_MODEL``.
 
 **Robustness CI (separate manual step):** ``repeated-splits`` re-draws 500 fresh
 stratified 400/100 splits and refits LR + RF with saved ``rf_gridsearch.best_params``
@@ -64,9 +62,7 @@ from config import (
     METRICS_RELIABILITY_JSON,
     METRICS_REPEATED_SPLITS_JSON,
     METRICS_SKLEARN_JSON,
-    METRICS_TYYP_JSON,
     SIMON_LABELING_CSV,
-    SKLEARN_CV_FOLDS,
     UKU_LABELING_CSV,
 )
 from modeling.dataset import (
@@ -89,7 +85,6 @@ from modeling.repeated_splits import (
     summarize_repeats,
 )
 from modeling.sklearn_models import fit_predict
-from modeling.tyyp_sklearn import cv_tyyp_tfidf_rf
 
 
 _REG_METRIC_KEYS = (
@@ -375,8 +370,6 @@ def cmd_sklearn_importances(args: argparse.Namespace) -> None:
     Only ``--out`` is written (default: ``sklearn_feature_importances.json`` next to ``--metrics``).
     ``--metrics`` (e.g. ``metrics_sklearn.json``) is read-only unless you set ``--out`` to that same path.
     """
-    import json
-
     import pandas as pd
     from sklearn.ensemble import RandomForestRegressor
     from sklearn.impute import SimpleImputer
@@ -675,34 +668,6 @@ def cmd_llm(args: argparse.Namespace) -> None:
     write_metrics_json(metrics_path, metrics_payload)
 
     write_holdout_llm_csv_from_merged(m, args.variant)
-
-
-def cmd_tyyp(args: argparse.Namespace) -> None:
-    import pandas as pd
-
-    df = pd.read_csv(args.table, encoding="utf-8-sig")
-    try:
-        validate_modeling_table(df, need_text=True, need_tyyp=True)
-    except ValueError as e:
-        raise SystemExit(str(e)) from e
-    texts = df["text"]
-    y_tyyp = df["y_tyyp"]
-    _, _, metrics, le = cv_tyyp_tfidf_rf(
-        texts, y_tyyp, n_splits=SKLEARN_CV_FOLDS
-    )
-    print("Classes:", list(le.classes_))
-    print(metrics["report"])
-    print("macro_f1:", metrics["macro_f1"], "accuracy:", metrics["accuracy"])
-    write_metrics_json(
-        METRICS_TYYP_JSON,
-        {
-            "schema": "benchmark_tyyp_v1",
-            "table": str(args.table.resolve()),
-            "cv_folds": SKLEARN_CV_FOLDS,
-            "classes": list(le.classes_),
-            **_cls_metrics_dict(metrics),
-        },
-    )
 
 
 def cmd_bert(_args: argparse.Namespace) -> None:
@@ -1038,7 +1003,7 @@ def cmd_compare(_args: argparse.Namespace) -> None:
 
 
 def cmd_all(args: argparse.Namespace) -> None:
-    """Run export-table, reliability, sklearn, both LLM variants, tyyp, then BERT (see subcommands)."""
+    """Run export-table, reliability, sklearn, both LLM variants, then BERT (see subcommands)."""
     llm_no = argparse.Namespace(table=args.table, variant="no_features")
     llm_with = argparse.Namespace(table=args.table, variant="with_features")
 
@@ -1050,7 +1015,6 @@ def cmd_all(args: argparse.Namespace) -> None:
         ("sklearn", lambda a=args: cmd_sklearn(a)),
         ("llm (no_features)", lambda a=llm_no: cmd_llm(a)),
         ("llm (with_features)", lambda a=llm_with: cmd_llm(a)),
-        ("tyyp", lambda a=args: cmd_tyyp(a)),
         ("bert", lambda a=args: cmd_bert(a)),
     ]
     for i, (name, fn) in enumerate(steps, start=1):
@@ -1129,10 +1093,6 @@ def main() -> None:
     )
     pl.set_defaults(func=cmd_llm)
 
-    pt = sub.add_parser("tyyp", help="Propaganda type (Tüüp): TF–IDF + RF on post text")
-    pt.add_argument("--table", type=Path, default=MODELING_TABLE_CSV)
-    pt.set_defaults(func=cmd_tyyp)
-
     sub.add_parser(
         "bert",
         help="Fine-tune one sequence model for 0–4 regression (see config.BERT_MODEL_ID; needs torch, transformers, datasets, accelerate).",
@@ -1186,7 +1146,7 @@ def main() -> None:
 
     pa = sub.add_parser(
         "all",
-        help="Full run: export-table, reliability, sklearn, llm×2, tyyp, bert (same paths as subcommands).",
+        help="Full run: export-table, reliability, sklearn, llm×2, bert (same paths as subcommands).",
     )
     pa.add_argument("--uku", type=Path, default=UKU_LABELING_CSV)
     pa.add_argument("--simon", type=Path, default=SIMON_LABELING_CSV)

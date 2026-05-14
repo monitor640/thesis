@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any, Optional
 import pandas as pd
 
-from config import CHECKPOINTS_DIR
+from config import CHECKPOINTS_DIR, DATA_DIR
 
 
 def ensure_dirs():
@@ -89,7 +89,6 @@ def clear_checkpoints():
 
 def save_dataframe_csv(df: pd.DataFrame, name: str) -> Path:
     """Save DataFrame to CSV in data directory."""
-    from config import DATA_DIR
     DATA_DIR.mkdir(exist_ok=True)
     path = DATA_DIR / f"{name}.csv"
     df.to_csv(path, index=False)
